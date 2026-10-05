@@ -11,6 +11,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #222;
 }
 
 button {
@@ -33,6 +35,7 @@ button {
 
 .title {
   margin: 0;
+  font-size: 32px;
 }
 
 .header-actions {
@@ -45,7 +48,12 @@ button {
   border: 1px solid #222;
   border-radius: 8px;
   background: #fff;
+  color: #222;
   cursor: pointer;
+}
+
+.button:hover {
+  background: #eee;
 }
 
 .main {
@@ -93,8 +101,7 @@ button {
   cursor: pointer;
 }
 
-.card-inner,
-.card-back {
+.card-inner {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,8 +114,33 @@ button {
   font-weight: 700;
 }
 
+.card-value {
+  font-size: 32px;
+}
+
 .card:hover {
   background: #ccc;
+}
+
+.card-open {
+  background: #fff;
+}
+
+.card-open:hover {
+  background: #fff;
+}
+
+.card-found {
+  background: #b7e4c7;
+  cursor: default;
+}
+
+.card-found:hover {
+  background: #b7e4c7;
+}
+
+[hidden] {
+  display: none;
 }
 
 @media (max-width: 600px) {
@@ -131,5 +163,9 @@ button {
 
   .stats {
     gap: 32px;
+  }
+
+  .title {
+    text-align: center;
   }
 }
