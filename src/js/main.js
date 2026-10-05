@@ -62,26 +62,68 @@ const gameBoard = document.createElement('section');
 gameBoard.classList.add('game-board');
 gameBoard.setAttribute('aria-label', 'Memory game board');
 
-for (let index = 0; index < 16; index += 1) {
-    const card = document.createElement('button');
+const cardValues = [
+    '🍎',
+    '🍌',
+    '🍇',
+    '🍉',
+    '🍓',
+    '🍒',
+    '🥝',
+    '🍍',
+];
 
-    card.classList.add('card');
-    card.type = 'button';
-    card.setAttribute('aria-label', `Card ${index + 1}`);
+const cards = [...cardValues, ...cardValues];
 
-    const cardInner = document.createElement('span');
-    cardInner.classList.add('card-inner');
+function shuffleCards(cardList) {
+    const shuffledCards = [...cardList];
 
-    const cardBack = document.createElement('span');
-    cardBack.classList.add('card-back');
-    cardBack.textContent = '?';
+    for (let index = shuffledCards.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
 
-    cardInner.append(cardBack);
-    card.append(cardInner);
-    gameBoard.append(card);
+        [shuffledCards[index], shuffledCards[randomIndex]] = [
+            shuffledCards[randomIndex],
+            shuffledCards[index],
+        ];
+    }
+
+    return shuffledCards;
+}
+
+function createCards() {
+    gameBoard.replaceChildren();
+
+    const shuffledCards = shuffleCards(cards);
+
+    shuffledCards.forEach((value, index) => {
+        const card = document.createElement('button');
+
+        card.classList.add('card');
+        card.type = 'button';
+        card.setAttribute('aria-label', `Card ${index + 1}`);
+
+        const cardInner = document.createElement('span');
+        cardInner.classList.add('card-inner');
+
+        const cardBack = document.createElement('span');
+        cardBack.classList.add('card-back');
+        cardBack.textContent = '?';
+
+        const cardValue = document.createElement('span');
+        cardValue.classList.add('card-value');
+        cardValue.textContent = value;
+
+        cardValue.hidden = true;
+
+        cardInner.append(cardBack, cardValue);
+        card.append(cardInner);
+        gameBoard.append(card);
+    });
 }
 
 main.append(stats, gameBoard);
 app.append(header, main);
 
 document.body.append(app);
+
+createCards();
