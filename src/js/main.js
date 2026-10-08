@@ -63,14 +63,38 @@ gameBoard.classList.add('game-board');
 gameBoard.setAttribute('aria-label', 'Memory game board');
 
 const cardValues = [
-    '🍎',
-    '🍌',
-    '🍇',
-    '🍉',
-    '🍓',
-    '🍒',
-    '🥝',
-    '🍍',
+    {
+        name: 'Axe',
+        image: './assets/heroes/axe.png',
+    },
+    {
+        name: 'Bristleback',
+        image: './assets/heroes/bristleback.png',
+    },
+    {
+        name: 'Crystal Maiden',
+        image: './assets/heroes/crystal_maiden.png',
+    },
+    {
+        name: 'Juggernaut',
+        image: './assets/heroes/juggernaut.png',
+    },
+    {
+        name: 'Morphling',
+        image: './assets/heroes/morphling.png',
+    },
+    {
+        name: 'Muerta',
+        image: './assets/heroes/muerta.png',
+    },
+    {
+        name: 'Techies',
+        image: './assets/heroes/techies.png',
+    },
+    {
+        name: 'Winter Wyvern',
+        image: './assets/heroes/winter_wyvern.png',
+    },
 ];
 
 const cards = [...cardValues, ...cardValues];
@@ -111,20 +135,20 @@ function openCard(card) {
     card.classList.add('card-open');
 
     const cardBack = card.querySelector('.card-back');
-    const cardValue = card.querySelector('.card-value');
+    const cardImage = card.querySelector('.card-image');
 
     cardBack.hidden = true;
-    cardValue.hidden = false;
+    cardImage.hidden = false;
 }
 
 function closeCard(card) {
     card.classList.remove('card-open');
 
     const cardBack = card.querySelector('.card-back');
-    const cardValue = card.querySelector('.card-value');
+    const cardImage = card.querySelector('.card-image');
 
     cardBack.hidden = false;
-    cardValue.hidden = true;
+    cardImage.hidden = true;
 }
 
 function getCardValue(card) {
@@ -407,13 +431,13 @@ function createCards() {
 
     const shuffledCards = shuffleCards(cards);
 
-    shuffledCards.forEach((value, index) => {
+    shuffledCards.forEach((cardData, index) => {
         const card = document.createElement('button');
 
         card.classList.add('card');
         card.type = 'button';
         card.setAttribute('aria-label', `Card ${index + 1}`);
-        card.dataset.value = value;
+        card.dataset.value = cardData.name;
 
         const cardInner = document.createElement('span');
         cardInner.classList.add('card-inner');
@@ -422,12 +446,13 @@ function createCards() {
         cardBack.classList.add('card-back');
         cardBack.textContent = '?';
 
-        const cardValue = document.createElement('span');
-        cardValue.classList.add('card-value');
-        cardValue.textContent = value;
-        cardValue.hidden = true;
+        const cardImage = document.createElement('img');
+        cardImage.classList.add('card-image');
+        cardImage.src = cardData.image;
+        cardImage.alt = cardData.name;
+        cardImage.hidden = true;
 
-        cardInner.append(cardBack, cardValue);
+        cardInner.append(cardBack, cardImage);
         card.append(cardInner);
         gameBoard.append(card);
 
