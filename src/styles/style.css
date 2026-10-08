@@ -9,4 +9,256 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  color: #f2f2f2;
+
+  background:
+          linear-gradient(
+                  rgb(10 12 15 / 82%),
+                  rgb(10 12 15 / 82%)
+          ),
+          url('../../assets/heroes/pudge-bg.png') center / cover fixed no-repeat;
+  background-color: #15191e;
+}
+
+button {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto 32px;
+}
+
+.title {
+  margin: 0;
+  font-size: 32px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.button {
+  padding: 10px 16px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background: #242a31;
+  color: #f2f2f2;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #303840;
+}
+
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-bottom: 24px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #9ca3aa;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.card {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #3b424a;
+  border-radius: 12px;
+  background: #252b31;
+  cursor: pointer;
+  transition:
+          transform 0.15s ease,
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: #69737d;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 30%);
+}
+
+.card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.card-back {
+  font-size: 42px;
+  font-weight: 700;
+  color: #8d969f;
+}
+
+.card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-open {
+  border-color: #aeb7bf;
+}
+
+.card-open:hover {
+  border-color: #aeb7bf;
+}
+
+.card-found {
+  border-color: #6ca77c;
+  box-shadow: 0 0 0 2px rgb(108 167 124 / 25%);
+  cursor: default;
+}
+
+.card-found:hover {
+  transform: none;
+  border-color: #6ca77c;
+}
+
+[hidden] {
+  display: none;
+}
+
+.modal-open {
+  overflow: hidden;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 65%);
+}
+
+.modal {
+  width: min(100%, 420px);
+  padding: 32px;
+  border: 1px solid #3b424a;
+  border-radius: 16px;
+  background: #20252b;
+  box-shadow: 0 10px 40px rgb(0 0 0 / 50%);
+  text-align: center;
+}
+
+.modal-title {
+  margin: 0 0 16px;
+  font-size: 28px;
+}
+
+.modal-text {
+  margin: 0 0 24px;
+  color: #b8bec5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.leaderboard {
+  margin-bottom: 24px;
+}
+
+.leaderboard-empty {
+  margin: 0;
+  color: #b8bec5;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding-left: 32px;
+  text-align: left;
+}
+
+.leaderboard-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid #3b424a;
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: center;
+  }
+
+  .game-board {
+    gap: 8px;
+  }
+
+  .stats {
+    gap: 32px;
+  }
+
+  .title {
+    text-align: center;
+  }
+
+  .card-back {
+    font-size: 32px;
+  }
 }
