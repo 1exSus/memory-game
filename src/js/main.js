@@ -80,6 +80,7 @@ let secondCard = null;
 let moves = 0;
 let foundPairs = 0;
 let isChecking = false;
+let mismatchTimer = null;
 
 function shuffleCards(cardList) {
     const shuffledCards = [...cardList];
@@ -169,13 +170,14 @@ function handleCardClick(event) {
 
     isChecking = true;
 
-    setTimeout(() => {
+    mismatchTimer = setTimeout(() => {
         closeCard(firstCard);
         closeCard(secondCard);
 
         firstCard = null;
         secondCard = null;
         isChecking = false;
+        mismatchTimer = null;
     }, 1000);
 }
 
@@ -217,12 +219,22 @@ function createCards() {
 }
 
 function startNewGame() {
+    if (mismatchTimer !== null) {
+        clearTimeout(mismatchTimer);
+        mismatchTimer = null;
+    }
+
     moves = 0;
     foundPairs = 0;
+    firstCard = null;
+    secondCard = null;
+    isChecking = false;
 
     updateStats();
     createCards();
 }
+
+newGameButton.addEventListener('click', startNewGame);
 
 main.append(stats, gameBoard);
 app.append(header, main);
