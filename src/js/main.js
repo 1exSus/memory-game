@@ -81,6 +81,7 @@ let moves = 0;
 let foundPairs = 0;
 let isChecking = false;
 let mismatchTimer = null;
+let isGameFinished = false;
 
 function shuffleCards(cardList) {
     const shuffledCards = [...cardList];
@@ -126,10 +127,103 @@ function getCardValue(card) {
     return card.dataset.value;
 }
 
+function createElementWithClass(tagName, className) {
+    const element = document.createElement(tagName);
+    element.classList.add(className);
+
+    return element;
+}
+
+function createModal() {
+    const overlay = createElementWithClass('div', 'modal-overlay');
+    overlay.setAttribute('role', 'presentation');
+
+    const modal = createElementWithClass('div', 'modal');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+
+    overlay.append(modal);
+
+    return {
+        overlay,
+        modal,
+    };
+}
+
+function closeModal() {
+    const modalOverlay = document.querySelector('.modal-overlay');
+
+    if (!modalOverlay) {
+        return;
+    }
+
+    modalOverlay.remove();
+    document.body.classList.remove('modal-open');
+    document.removeEventListener('keydown', handleModalKeydown);
+}
+
+function handleModalKeydown(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+}
+
+function showVictoryModal() {
+    const { overlay, modal } = createModal();
+
+    const modalTitle = document.createElement('h2');
+    modalTitle.classList.add('modal-title');
+    modalTitle.textContent = 'You win!';
+
+    const modalText = document.createElement('p');
+    modalText.classList.add('modal-text');
+    modalText.textContent = `You found all pairs in ${moves} moves.`;
+
+    const modalActions = document.createElement('div');
+    modalActions.classList.add('modal-actions');
+
+    const modalNewGameButton = document.createElement('button');
+    modalNewGameButton.classList.add('button');
+    modalNewGameButton.type = 'button';
+    modalNewGameButton.textContent = 'New Game';
+
+    const closeButton = document.createElement('button');
+    closeButton.classList.add('button');
+    closeButton.type = 'button';
+    closeButton.textContent = 'Close';
+
+    modalNewGameButton.addEventListener('click', () => {
+        closeModal();
+        startNewGame();
+    });
+
+    closeButton.addEventListener('click', closeModal);
+
+    modalActions.append(modalNewGameButton, closeButton);
+    modal.append(modalTitle, modalText, modalActions);
+
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) {
+            closeModal();
+        }
+    });
+
+    document.body.append(overlay);
+    document.body.classList.add('modal-open');
+    document.addEventListener('keydown', handleModalKeydown);
+}
+
+function checkVictory() {
+    if (foundPairs === cardValues.length) {
+        isGameFinished = true;
+        showVictoryModal();
+    }
+}
+
 function handleCardClick(event) {
     const card = event.currentTarget;
 
-    if (isChecking) {
+    if (isChecking || isGameFinished) {
         return;
     }
 
@@ -164,6 +258,8 @@ function handleCardClick(event) {
 
         firstCard = null;
         secondCard = null;
+
+        checkVictory();
 
         return;
     }
@@ -219,6 +315,8 @@ function createCards() {
 }
 
 function startNewGame() {
+    closeModal();
+
     if (mismatchTimer !== null) {
         clearTimeout(mismatchTimer);
         mismatchTimer = null;
@@ -229,6 +327,7 @@ function startNewGame() {
     firstCard = null;
     secondCard = null;
     isChecking = false;
+    isGameFinished = false;
 
     updateStats();
     createCards();
