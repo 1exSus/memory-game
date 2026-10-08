@@ -82,6 +82,10 @@ let foundPairs = 0;
 let isChecking = false;
 let mismatchTimer = null;
 let isGameFinished = false;
+let resultSaved = false;
+
+const LEADERBOARD_KEY = 'memory-game-leaderboard';
+const MAX_LEADERBOARD_RESULTS = 10;
 
 function shuffleCards(cardList) {
     const shuffledCards = [...cardList];
@@ -127,18 +131,74 @@ function getCardValue(card) {
     return card.dataset.value;
 }
 
-function createElementWithClass(tagName, className) {
-    const element = document.createElement(tagName);
-    element.classList.add(className);
+function getLeaderboard() {
+    const savedResults = localStorage.getItem(LEADERBOARD_KEY);
 
-    return element;
+    if (!savedResults) {
+        return [];
+    }
+
+    try {
+        const results = JSON.parse(savedResults);
+
+        if (!Array.isArray(results)) {
+            return [];
+        }
+
+        return results;
+    } catch {
+        return [];
+    }
+}
+
+function saveLeaderboard(results) {
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(results));
+}
+
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${day}.${month}.${year}`;
+}
+
+function addLeaderboardResult() {
+    if (resultSaved) {
+        return;
+    }
+
+    const results = getLeaderboard();
+
+    const result = {
+        moves,
+        date: formatDate(new Date()),
+        timestamp: Date.now(),
+    };
+
+    results.push(result);
+
+    results.sort((firstResult, secondResult) => {
+        if (firstResult.moves !== secondResult.moves) {
+            return firstResult.moves - secondResult.moves;
+        }
+
+        return firstResult.timestamp - secondResult.timestamp;
+    });
+
+    const topResults = results.slice(0, MAX_LEADERBOARD_RESULTS);
+
+    saveLeaderboard(topResults);
+
+    resultSaved = true;
 }
 
 function createModal() {
-    const overlay = createElementWithClass('div', 'modal-overlay');
-    overlay.setAttribute('role', 'presentation');
+    const overlay = document.createElement('div');
+    overlay.classList.add('modal-overlay');
 
-    const modal = createElementWithClass('div', 'modal');
+    const modal = document.createElement('div');
+    modal.classList.add('modal');
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
 
@@ -146,7 +206,7 @@ function createModal() {
 
     return {
         overlay,
-        modal,
+        content: modal,
     };
 }
 
@@ -169,55 +229,111 @@ function handleModalKeydown(event) {
 }
 
 function showVictoryModal() {
-    const { overlay, modal } = createModal();
+    const modal = createModal();
 
-    const modalTitle = document.createElement('h2');
-    modalTitle.classList.add('modal-title');
-    modalTitle.textContent = 'You win!';
+    const title = document.createElement('h2');
+    title.classList.add('modal-title');
+    title.textContent = 'You win!';
 
-    const modalText = document.createElement('p');
-    modalText.classList.add('modal-text');
-    modalText.textContent = `You found all pairs in ${moves} moves.`;
+    const text = document.createElement('p');
+    text.classList.add('modal-text');
+    text.textContent = `You completed the game in ${moves} moves.`;
 
-    const modalActions = document.createElement('div');
-    modalActions.classList.add('modal-actions');
+    const actions = document.createElement('div');
+    actions.classList.add('modal-actions');
 
-    const modalNewGameButton = document.createElement('button');
-    modalNewGameButton.classList.add('button');
-    modalNewGameButton.type = 'button';
-    modalNewGameButton.textContent = 'New Game';
+    const newGameModalButton = document.createElement('button');
+    newGameModalButton.classList.add('button');
+    newGameModalButton.type = 'button';
+    newGameModalButton.textContent = 'New Game';
 
     const closeButton = document.createElement('button');
     closeButton.classList.add('button');
     closeButton.type = 'button';
     closeButton.textContent = 'Close';
 
-    modalNewGameButton.addEventListener('click', () => {
-        closeModal();
-        startNewGame();
-    });
-
+    newGameModalButton.addEventListener('click', startNewGame);
     closeButton.addEventListener('click', closeModal);
 
-    modalActions.append(modalNewGameButton, closeButton);
-    modal.append(modalTitle, modalText, modalActions);
+    actions.append(newGameModalButton, closeButton);
 
-    overlay.addEventListener('click', (event) => {
-        if (event.target === overlay) {
+    modal.content.append(title, text, actions);
+
+    document.body.append(modal.overlay);
+    document.body.classList.add('modal-open');
+
+    modal.overlay.addEventListener('click', (event) => {
+        if (event.target === modal.overlay) {
             closeModal();
         }
     });
 
-    document.body.append(overlay);
-    document.body.classList.add('modal-open');
     document.addEventListener('keydown', handleModalKeydown);
 }
 
-function checkVictory() {
-    if (foundPairs === cardValues.length) {
-        isGameFinished = true;
-        showVictoryModal();
+function showLeaderboardModal() {
+    const modal = createModal();
+
+    const title = document.createElement('h2');
+    title.classList.add('modal-title');
+    title.textContent = 'Leaderboard';
+
+    const content = document.createElement('div');
+    content.classList.add('leaderboard');
+
+    const results = getLeaderboard();
+
+    if (results.length === 0) {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.classList.add('leaderboard-empty');
+        emptyMessage.textContent = 'No results yet.';
+
+        content.append(emptyMessage);
+    } else {
+        const list = document.createElement('ol');
+        list.classList.add('leaderboard-list');
+
+        results.forEach((result) => {
+            const item = document.createElement('li');
+            item.classList.add('leaderboard-item');
+
+            const movesText = document.createElement('span');
+            movesText.textContent = `${result.moves} moves`;
+
+            const dateText = document.createElement('span');
+            dateText.textContent = result.date;
+
+            item.append(movesText, dateText);
+            list.append(item);
+        });
+
+        content.append(list);
     }
+
+    const actions = document.createElement('div');
+    actions.classList.add('modal-actions');
+
+    const closeButton = document.createElement('button');
+    closeButton.classList.add('button');
+    closeButton.type = 'button';
+    closeButton.textContent = 'Close';
+
+    closeButton.addEventListener('click', closeModal);
+
+    actions.append(closeButton);
+
+    modal.content.append(title, content, actions);
+
+    document.body.append(modal.overlay);
+    document.body.classList.add('modal-open');
+
+    modal.overlay.addEventListener('click', (event) => {
+        if (event.target === modal.overlay) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', handleModalKeydown);
 }
 
 function handleCardClick(event) {
@@ -259,7 +375,12 @@ function handleCardClick(event) {
         firstCard = null;
         secondCard = null;
 
-        checkVictory();
+        if (foundPairs === cardValues.length) {
+            isGameFinished = true;
+
+            addLeaderboardResult();
+            showVictoryModal();
+        }
 
         return;
     }
@@ -328,12 +449,14 @@ function startNewGame() {
     secondCard = null;
     isChecking = false;
     isGameFinished = false;
+    resultSaved = false;
 
     updateStats();
     createCards();
 }
 
 newGameButton.addEventListener('click', startNewGame);
+leaderboardButton.addEventListener('click', showLeaderboardModal);
 
 main.append(stats, gameBoard);
 app.append(header, main);
